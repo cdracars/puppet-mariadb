@@ -4,12 +4,28 @@ class mariadb::install {
 
         'centos': {
 
-            package {'firefox':
-                ensure => installed,
-                require => Class['xvfb'];
-            }
+               $basearch = "i386"
+               yumrepo {
 
-        }
+               "ourdelta":
+                        descr       => "Ourdelta",
+                        enabled     => 1,
+                        gpgcheck    => 0,
+                        baseurl     => "http://master.ourdelta.org/yum/CentOS-MySQL50/5Server/"; 
+                
+                }
+
+                package { "MySQL-OurDelta-server.$basearch":
+                    alias  => "MySQL-server",
+                    ensure => "installed";
+                }
+
+                package { "MySQL-OurDelta-client.$basearch":
+                    alias  => "MySQL-client",
+                    ensure => "installed";
+                }
+                    
+            }
 
         'debian': {
 
@@ -36,7 +52,7 @@ class mariadb::install {
                 require => [ File["/etc/apt/sources.list.d/maria.list"], Exec["apt-update"] ];
             }		
 
-            Exec["Import Key"] -> Exec["apt-update"] -> File["/etc/apt/sources.list.d/maria.list"] -> Package["mariadb-server"] -> Package["mariadb-client"]
+            Exec["Import Key"] -> File["/etc/apt/sources.list.d/maria.list"] -> Exec["apt-update"] -> Package["mariadb-server"] -> Package["mariadb-client"]
 
 	    }
 
@@ -45,38 +61,3 @@ class mariadb::install {
     }
 
 }
-
-class maria::yumrepository {
-
-   $basearch = "i386"
-   yumrepo {
-
-
-	 
-   "ourdelta":
-            descr       => "Ourdelta",
-            enabled     => 1,
-            gpgcheck    => 0,
-            baseurl     => "http://master.ourdelta.org/yum/CentOS-MySQL50/5Server/"; 
-        
-
-}
-
-
-}
-
-class maria::rpmpackages {
-
-
-   $basearch = "i386"
-	package { "MySQL-OurDelta-server.$basearch":
-            		alias  => "MySQL-server",
-			ensure => "installed";
-		"MySQL-OurDelta-client.$basearch":
-            		alias  => "MySQL-client",
-			ensure => "installed";
-
-	}
-	
-}
-	
